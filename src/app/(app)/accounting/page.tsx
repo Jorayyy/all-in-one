@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
 import { formatDate } from "@/lib/format";
 import { Plus, Calculator } from "@/components/icons";
+import Link from "next/link";
 
 export default async function AccountingPage() {
   await requireAuth();
@@ -22,11 +23,15 @@ export default async function AccountingPage() {
           <p className="text-sm text-muted-foreground">Chart of accounts and journal entries</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">Journal Entry</Button>
-          <Button size="sm">
-            <Plus className="mr-1.5 h-4 w-4" />
-            New Account
-          </Button>
+          <Link href="/accounting/journal/new">
+            <Button variant="outline" size="sm">Journal Entry</Button>
+          </Link>
+          <Link href="/accounting/accounts/new">
+            <Button size="sm">
+              <Plus className="mr-1.5 h-4 w-4" />
+              New Account
+            </Button>
+          </Link>
         </div>
       </div>
 

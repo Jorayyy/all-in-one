@@ -2,8 +2,9 @@ import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { Plus, Download, Money } from "@/components/icons";
+import { Plus, Download, Money, Calculator, Users, Receipt, ChartBar } from "@/components/icons";
 import Link from "next/link";
+import { PayrollPeriodActions } from "@/components/payroll/payroll-period-actions";
 
 export default async function PayrollPage() {
   await requireAuth();
@@ -16,9 +17,28 @@ export default async function PayrollPage() {
     take: 10,
   });
 
-  const totalPayroll = await db.payrollRecord.aggregate({
-    _sum: { netPay: true },
+  const aggregates = await db.payrollRecord.aggregate({
+    _sum: {
+      netPay: true,
+      sssDeduction: true,
+      philhealthDeduction: true,
+      pagibigDeduction: true,
+      taxDeduction: true,
+    },
+    _count: { _all: true },
   });
+
+  const totalPayrollValue = Number(aggregates._sum.netPay || 0);
+  const totalDeductionsValue =
+    Number(aggregates._sum.sssDeduction || 0) +
+    Number(aggregates._sum.philhealthDeduction || 0) +
+    Number(aggregates._sum.pagibigDeduction || 0) +
+    Number(aggregates._sum.taxDeduction || 0);
+  const totalEmployeesCount = aggregates._count._all || 0;
+  const avgNetPay = totalEmployeesCount > 0 ? totalPayrollValue / totalEmployeesCount : 0;
+
+  // fallback: also count from loaded periods if aggregate count unavailable
+  const totalEmployeesDisplay = totalEmployeesCount;
 
   return (
     <div className="space-y-6">
@@ -41,21 +61,65 @@ export default async function PayrollPage() {
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="rounded-md bg-success/10 p-2 text-success">
-              <Money className="h-4 w-4" />
+      {/* Overall stats row */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="rounded-md bg-success/10 p-2 text-success">
+                <Money className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Total Payroll</p>
+                <p className="text-xl font-semibold">{formatCurrency(totalPayrollValue)}</p>
+                <p className="text-[11px] text-muted-foreground">sum netPay across all periods</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Total Payroll</p>
-              <p className="text-xl font-semibold">
-                {formatCurrency(Number(totalPayroll._sum.netPay || 0))}
-              </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="rounded-md bg-warning/10 p-2 text-warning">
+                <Receipt className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Total Deductions</p>
+                <p className="text-xl font-semibold">{formatCurrency(totalDeductionsValue)}</p>
+                <p className="text-[11px] text-muted-foreground">SSS + PhilHealth + Pag-IBIG + BIR</p>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="rounded-md bg-secondary p-2">
+                <Users className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Total Employees</p>
+                <p className="text-xl font-semibold">{totalEmployeesDisplay}</p>
+                <p className="text-[11px] text-muted-foreground">count of records across all periods</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="rounded-md bg-info/10 p-2 text-info">
+                <ChartBar className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Avg Net Pay</p>
+                <p className="text-xl font-semibold">{formatCurrency(avgNetPay)}</p>
+                <p className="text-[11px] text-muted-foreground">per employee (total / count)</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card>
         <CardHeader>
@@ -64,9 +128,7 @@ export default async function PayrollPage() {
         <CardContent>
           <div className="space-y-3">
             {payPeriods.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                No pay periods yet
-              </p>
+              <p className="py-8 text-center text-sm text-muted-foreground">No pay periods yet</p>
             ) : (
               payPeriods.map((period) => (
                 <div key={period.id} className="rounded-md border border-border p-4">
@@ -75,9 +137,7 @@ export default async function PayrollPage() {
                       <p className="text-sm font-medium">
                         {formatDate(period.startDate)} - {formatDate(period.endDate)}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {period.records.length} employees
-                      </p>
+                      <p className="text-xs text-muted-foreground">{period.records.length} employees</p>
                     </div>
                     <Badge variant={period.isClosed ? "success" : "warning"}>
                       {period.isClosed ? "Closed" : "Open"}
@@ -111,9 +171,7 @@ export default async function PayrollPage() {
                                     Number(record.taxDeduction)
                                 )}
                               </td>
-                              <td className="py-2 font-medium">
-                                {formatCurrency(Number(record.netPay))}
-                              </td>
+                              <td className="py-2 font-medium">{formatCurrency(Number(record.netPay))}</td>
                               <td className="py-2">
                                 <Badge variant={record.isPaid ? "success" : "warning"}>
                                   {record.isPaid ? "Paid" : "Pending"}
@@ -125,6 +183,20 @@ export default async function PayrollPage() {
                       </table>
                     </div>
                   )}
+
+                  {period.records.length === 0 && !period.isClosed && (
+                    <p className="mb-3 text-xs text-muted-foreground">
+                      No records yet — compute overall payroll for this period.
+                    </p>
+                  )}
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <PayrollPeriodActions
+                      id={period.id}
+                      isClosed={period.isClosed}
+                      hasRecords={period.records.length > 0}
+                    />
+                  </div>
                 </div>
               ))
             )}

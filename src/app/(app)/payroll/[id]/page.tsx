@@ -226,11 +226,15 @@ export default function PayPeriodDetailPage() {
             onClick={handleRun}
             disabled={runDisabled}
             title={
-              period.isClosed ? "Period is closed" : hasRecords ? "Payroll already generated" : "Generate payroll records"
+              period.isClosed
+                ? "Period is closed"
+                : hasRecords
+                  ? "Payroll already generated"
+                  : "Compute Payroll — SSS/PhilHealth/Pag-IBIG/BIR"
             }
           >
             <Calculator className="h-4 w-4 mr-1.5" />
-            {actionLoading === "run" ? "Running..." : "Run Payroll"}
+            {actionLoading === "run" ? "Computing..." : "Compute Payroll (SSS/PhilHealth/Pag-IBIG/BIR)"}
           </Button>
           <Button
             size="sm"
@@ -310,11 +314,11 @@ export default function PayPeriodDetailPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {period.records.length === 0 ? (
+           {period.records.length === 0 ? (
             <div className="py-8 text-center">
-              <p className="text-sm text-muted-foreground mb-4">No records yet. Run payroll to generate records.</p>
+              <p className="text-sm text-muted-foreground mb-4">No records yet. Compute payroll to generate records with SSS/PhilHealth/Pag-IBIG/BIR deductions.</p>
               <Button size="sm" onClick={handleRun} disabled={period.isClosed || actionLoading === "run"}>
-                <Calculator className="h-4 w-4 mr-1.5" /> Run Payroll
+                <Calculator className="h-4 w-4 mr-1.5" /> Compute Payroll (SSS/PhilHealth/Pag-IBIG/BIR)
               </Button>
             </div>
           ) : (

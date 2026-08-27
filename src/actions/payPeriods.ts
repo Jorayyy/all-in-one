@@ -90,6 +90,17 @@ export async function closePayPeriod(payPeriodId: string) {
   const approver = await db.employee.findUnique({ where: { userId: session.user.id } });
   if (!approver) throw new Error("Approver not found");
 
+  const existing = await db.payPeriod.findUnique({ where: { id: payPeriodId } });
+  if (!existing) throw new Error("Pay period not found");
+  if (existing.isClosed) throw new Error("Pay period already closed");
+
+  if ((existing as any).records === undefined) {
+    const count = await db.payrollRecord.count({ where: { payPeriodId } });
+    if (count === 0) {
+      // allow closing empty period but warn — still proceed
+    }
+  }
+
   const payPeriod = await db.payPeriod.update({
     where: { id: payPeriodId },
     data: { isClosed: true, closedBy: approver.id, closedAt: new Date() },

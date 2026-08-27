@@ -14,7 +14,7 @@ export async function POST(
     const message = error?.message || "Failed to close pay period";
     let status = 500;
     if (message.includes("not found")) status = 404;
-    else if (message.includes("Approver")) status = 400;
+    else if (message.includes("Approver") || message.includes("already closed")) status = 400;
     return NextResponse.json({ error: message }, { status });
   }
 }

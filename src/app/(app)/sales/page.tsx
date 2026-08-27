@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Plus, Money, Clock, TrendUp } from "@/components/icons";
+import Link from "next/link";
 
 export default async function SalesPage() {
   await requireAuth();
@@ -38,10 +39,12 @@ export default async function SalesPage() {
           <h2 className="text-xl font-semibold">Sales & Invoicing</h2>
           <p className="text-sm text-muted-foreground">Manage quotations and invoices</p>
         </div>
-        <Button size="sm">
-          <Plus className="mr-1.5 h-4 w-4" />
-          New Invoice
-        </Button>
+        <Link href="/sales/new">
+          <Button size="sm">
+            <Plus className="mr-1.5 h-4 w-4" />
+            New Invoice
+          </Button>
+        </Link>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
