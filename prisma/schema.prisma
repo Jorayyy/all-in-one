@@ -265,6 +265,7 @@ model Employee {
   tasks            Task[]
   assignedTickets  ServiceTicket[]  @relation("TicketAssignee")
   createdTickets   ServiceTicket[]  @relation("TicketCreator")
+  ticketComments   TicketComment[]  @relation("TicketCommentAuthor")
   assets           Asset[]
   timeEntries      TimeEntry[]
   createdAt        DateTime         @default(now())
@@ -601,6 +602,7 @@ model Project {
   employees   ProjectEmployee[]
   tasks       Task[]
   timeEntries TimeEntry[]
+  tickets     ServiceTicket[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   deletedAt   DateTime?
@@ -678,6 +680,7 @@ model ServiceTicket {
   assigneeId  String?
   assignee    Employee?      @relation("TicketAssignee", fields: [assigneeId], references: [id])
   projectId   String?
+  project    Project?      @relation(fields: [projectId], references: [id])
   dueDate     DateTime?
   resolvedAt  DateTime?
   closedAt    DateTime?
@@ -698,6 +701,7 @@ model TicketComment {
   ticketId  String
   ticket    ServiceTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   authorId  String
+  author    Employee      @relation("TicketCommentAuthor", fields: [authorId], references: [id])
   content   String
   createdAt DateTime      @default(now())
 
