@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { Card, CardContent, Badge, Button } from "@/components/ui";
 import { formatCurrency } from "@/lib/format";
 import { Plus, MagnifyingGlass, Package, Warning } from "@/components/icons";
+import Link from "next/link";
 
 export default async function InventoryPage() {
   await requireAuth();
@@ -27,10 +28,12 @@ export default async function InventoryPage() {
           <h2 className="text-xl font-semibold">Inventory</h2>
           <p className="text-sm text-muted-foreground">{products.length} products</p>
         </div>
-        <Button size="sm">
-          <Plus className="mr-1.5 h-4 w-4" />
-          Add Product
-        </Button>
+        <Link href="/inventory/new">
+          <Button size="sm">
+            <Plus className="mr-1.5 h-4 w-4" />
+            Add Product
+          </Button>
+        </Link>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
 import { formatDate } from "@/lib/format";
 import { Plus, Funnel, Headphones } from "@/components/icons";
+import Link from "next/link";
 
 export default async function TicketsPage() {
   await requireAuth();
@@ -34,10 +35,12 @@ export default async function TicketsPage() {
           <h2 className="text-xl font-semibold">Tickets</h2>
           <p className="text-sm text-muted-foreground">{tickets.length} tickets</p>
         </div>
-        <Button size="sm">
-          <Plus className="mr-1.5 h-4 w-4" />
-          New Ticket
-        </Button>
+        <Link href="/tickets/new">
+          <Button size="sm">
+            <Plus className="mr-1.5 h-4 w-4" />
+            New Ticket
+          </Button>
+        </Link>
       </div>
 
       <Card>

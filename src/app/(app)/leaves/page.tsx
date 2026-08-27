@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
 import { formatDate } from "@/lib/format";
 import { Plus, Check, X, Warning } from "@/components/icons";
+import Link from "next/link";
 
 export default async function LeavesPage() {
   await requireAuth();
@@ -35,10 +36,12 @@ export default async function LeavesPage() {
           <h2 className="text-xl font-semibold">Leaves</h2>
           <p className="text-sm text-muted-foreground">Manage leave requests</p>
         </div>
-        <Button size="sm">
-          <Plus className="mr-1.5 h-4 w-4" />
-          New Request
-        </Button>
+        <Link href="/leaves/new">
+          <Button size="sm">
+            <Plus className="mr-1.5 h-4 w-4" />
+            New Request
+          </Button>
+        </Link>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

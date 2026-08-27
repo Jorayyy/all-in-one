@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { Card, CardContent, Badge, Button, ProgressBar } from "@/components/ui";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Plus, Folder } from "@/components/icons";
+import Link from "next/link";
 
 export default async function ProjectsPage() {
   await requireAuth();
@@ -32,10 +33,12 @@ export default async function ProjectsPage() {
           <h2 className="text-xl font-semibold">Projects</h2>
           <p className="text-sm text-muted-foreground">{projects.length} projects</p>
         </div>
-        <Button size="sm">
-          <Plus className="mr-1.5 h-4 w-4" />
-          New Project
-        </Button>
+        <Link href="/projects/new">
+          <Button size="sm">
+            <Plus className="mr-1.5 h-4 w-4" />
+            New Project
+          </Button>
+        </Link>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

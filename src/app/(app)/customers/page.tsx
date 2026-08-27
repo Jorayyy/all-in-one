@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, Button } from "@/components/ui";
 import { Plus, MagnifyingGlass, Users, Phone, Envelope } from "@/components/icons";
+import Link from "next/link";
 
 export default async function CustomersPage() {
   await requireAuth();
@@ -21,10 +22,12 @@ export default async function CustomersPage() {
           <h2 className="text-xl font-semibold">Customers</h2>
           <p className="text-sm text-muted-foreground">{customers.length} customers</p>
         </div>
-        <Button size="sm">
-          <Plus className="mr-1.5 h-4 w-4" />
-          Add Customer
-        </Button>
+        <Link href="/customers/new">
+          <Button size="sm">
+            <Plus className="mr-1.5 h-4 w-4" />
+            Add Customer
+          </Button>
+        </Link>
       </div>
 
       <Card>

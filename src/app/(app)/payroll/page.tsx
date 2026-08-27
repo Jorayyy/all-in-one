@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Plus, Download, Money } from "@/components/icons";
+import Link from "next/link";
 
 export default async function PayrollPage() {
   await requireAuth();
@@ -31,10 +32,12 @@ export default async function PayrollPage() {
             <Download className="mr-1.5 h-4 w-4" />
             Export
           </Button>
-          <Button size="sm">
-            <Plus className="mr-1.5 h-4 w-4" />
-            New Period
-          </Button>
+          <Link href="/payroll/new">
+            <Button size="sm">
+              <Plus className="mr-1.5 h-4 w-4" />
+              New Period
+            </Button>
+          </Link>
         </div>
       </div>
 

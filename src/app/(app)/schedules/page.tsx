@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
 import { Plus, CaretLeft, CaretRight } from "@/components/icons";
+import Link from "next/link";
 
 export default async function SchedulesPage() {
   await requireAuth();
@@ -35,10 +36,12 @@ export default async function SchedulesPage() {
           <h2 className="text-xl font-semibold">Schedules</h2>
           <p className="text-sm text-muted-foreground">Manage employee shifts</p>
         </div>
-        <Button size="sm">
-          <Plus className="mr-1.5 h-4 w-4" />
-          Create
-        </Button>
+        <Link href="/schedules/new">
+          <Button size="sm">
+            <Plus className="mr-1.5 h-4 w-4" />
+            Create
+          </Button>
+        </Link>
       </div>
 
       <Card>

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { Card, CardContent, Badge, Button } from "@/components/ui";
 import { formatDate } from "@/lib/format";
 import { Plus, MagnifyingGlass, Wrench, CheckCircle, Warning } from "@/components/icons";
+import Link from "next/link";
 
 export default async function AssetsPage() {
   await requireAuth();
@@ -28,10 +29,12 @@ export default async function AssetsPage() {
           <h2 className="text-xl font-semibold">Assets</h2>
           <p className="text-sm text-muted-foreground">{assets.length} assets</p>
         </div>
-        <Button size="sm">
-          <Plus className="mr-1.5 h-4 w-4" />
-          Add Asset
-        </Button>
+        <Link href="/assets/new">
+          <Button size="sm">
+            <Plus className="mr-1.5 h-4 w-4" />
+            Add Asset
+          </Button>
+        </Link>
       </div>
 
       <Card>
