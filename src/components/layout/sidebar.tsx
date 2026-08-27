@@ -28,7 +28,7 @@ import {
   Moon,
   Monitor,
 } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 
 interface NavItem {
@@ -95,6 +95,8 @@ interface SidebarProps {
 export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <aside
@@ -162,27 +164,30 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
         <div className={cn("flex items-center gap-1", collapsed ? "justify-center" : "px-2")}>
           <button
             onClick={() => setTheme("light")}
+            title="Light"
             className={cn(
-              "rounded-md p-1.5 transition-colors",
-              theme === "light" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+              "cursor-pointer rounded-md p-1.5 transition-colors",
+              mounted && theme === "light" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
             )}
           >
             <Sun className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => setTheme("dark")}
+            title="Dark"
             className={cn(
-              "rounded-md p-1.5 transition-colors",
-              theme === "dark" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+              "cursor-pointer rounded-md p-1.5 transition-colors",
+              mounted && theme === "dark" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
             )}
           >
             <Moon className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => setTheme("system")}
+            title="System"
             className={cn(
-              "rounded-md p-1.5 transition-colors",
-              theme === "system" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+              "cursor-pointer rounded-md p-1.5 transition-colors",
+              mounted && theme === "system" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
             )}
           >
             <Monitor className="h-3.5 w-3.5" />
@@ -194,8 +199,9 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       <div className="border-t border-border px-2 py-2 space-y-1">
         <button
           onClick={onToggle}
+          title={collapsed ? "Expand" : "Collapse"}
           className={cn(
-            "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground",
+            "flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground",
             collapsed && "justify-center"
           )}
         >
@@ -206,7 +212,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
           <button
             type="submit"
             className={cn(
-              "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive",
+              "flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive",
               collapsed && "justify-center"
             )}
           >

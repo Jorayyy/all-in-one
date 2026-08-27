@@ -1,6 +1,5 @@
 import { requireAuth } from "@/lib/auth";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
+import { AppShell } from "@/components/layout/app-shell";
 
 export default async function AppLayout({
   children,
@@ -10,18 +9,14 @@ export default async function AppLayout({
   const session = await requireAuth();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Header
-          user={{
-            name: session.user.email,
-            role: session.user.role,
-            employee: session.user.employee,
-          }}
-        />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
-      </div>
-    </div>
+    <AppShell
+      user={{
+        name: session.user.email,
+        role: session.user.role,
+        employee: session.user.employee,
+      }}
+    >
+      {children}
+    </AppShell>
   );
 }
