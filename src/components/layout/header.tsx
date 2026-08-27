@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Avatar, DropdownMenu } from "@/components/ui";
 import { getInitials, fullName } from "@/lib/format";
-import { Bell, Search, Menu } from "lucide-react";
+import { Bell, Menu } from "phosphor-react";
 
 interface HeaderProps {
   user: {
@@ -33,38 +33,21 @@ export function Header({ user, onMenuClick }: HeaderProps) {
   ];
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
-      <div className="flex items-center gap-4">
+    <header className="flex h-12 items-center justify-between border-b border-border bg-card px-4">
+      <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 lg:hidden"
+          className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground lg:hidden"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-4 w-4" />
         </button>
-        <h1 className="text-xl font-semibold text-gray-900">{getPageTitle()}</h1>
+        <h1 className="text-sm font-medium">{getPageTitle()}</h1>
       </div>
 
-      <div className="flex items-center gap-4">
-        {/* Search */}
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="h-10 w-64 rounded-lg border border-gray-300 bg-gray-50 pl-10 pr-4 text-sm focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* Notifications */}
-        <button className="relative rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500" />
-        </button>
-
-        {/* User Menu */}
+      <div className="flex items-center gap-2">
         <DropdownMenu
           trigger={
-            <button className="flex items-center gap-3 rounded-lg p-2 hover:bg-gray-50">
+            <button className="flex items-center gap-2 rounded-md p-1.5 hover:bg-secondary">
               <Avatar
                 initials={
                   user.employee
@@ -74,12 +57,12 @@ export function Header({ user, onMenuClick }: HeaderProps) {
                 size="sm"
               />
               <div className="hidden text-left md:block">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-xs font-medium">
                   {user.employee
                     ? fullName(user.employee.firstName, user.employee.lastName)
                     : user.name}
                 </p>
-                <p className="text-xs text-gray-500">{user.role}</p>
+                <p className="text-[10px] text-muted-foreground">{user.role}</p>
               </div>
             </button>
           }

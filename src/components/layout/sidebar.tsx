@@ -4,33 +4,37 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/components/ui";
 import {
-  LayoutDashboard,
+  House,
   Users,
   Clock,
-  Calendar,
-  DollarSign,
+  CalendarBlank,
+  Money,
   Package,
-  ShoppingCart,
+  ShoppingBag,
   Calculator,
-  FolderKanban,
-  HeadphonesIcon,
+  Folder,
+  Headphones,
   Wrench,
   MapPin,
-  Settings,
-  LogOut,
-  Building2,
+  GearSix,
+  SignOut,
+  Building,
   FileText,
-  BarChart3,
+  ChartBar,
   Bell,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+  CaretLeft,
+  CaretRight,
+  Sun,
+  Moon,
+  Monitor,
+} from "phosphor-react";
+import { useState } from "react";
+import { useTheme } from "next-themes";
 
 interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
-  badge?: number;
 }
 
 interface NavGroup {
@@ -40,49 +44,45 @@ interface NavGroup {
 
 const navigation: NavGroup[] = [
   {
-    title: "Main",
+    title: "Overview",
     items: [
-      { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+      { label: "Dashboard", href: "/dashboard", icon: <House className="h-4 w-4" /> },
     ],
   },
   {
     title: "People",
     items: [
-      { label: "Employees", href: "/employees", icon: <Users className="h-5 w-5" /> },
-      { label: "Attendance", href: "/attendance", icon: <Clock className="h-5 w-5" /> },
-      { label: "Schedules", href: "/schedules", icon: <Calendar className="h-5 w-5" /> },
-      { label: "Leaves", href: "/leaves", icon: <FileText className="h-5 w-5" /> },
-      { label: "Payroll", href: "/payroll", icon: <DollarSign className="h-5 w-5" /> },
+      { label: "Employees", href: "/employees", icon: <Users className="h-4 w-4" /> },
+      { label: "Attendance", href: "/attendance", icon: <Clock className="h-4 w-4" /> },
+      { label: "Schedules", href: "/schedules", icon: <CalendarBlank className="h-4 w-4" /> },
+      { label: "Leaves", href: "/leaves", icon: <FileText className="h-4 w-4" /> },
+      { label: "Payroll", href: "/payroll", icon: <Money className="h-4 w-4" /> },
     ],
   },
   {
     title: "Operations",
     items: [
-      { label: "Inventory", href: "/inventory", icon: <Package className="h-5 w-5" /> },
-      { label: "Assets", href: "/assets", icon: <Wrench className="h-5 w-5" /> },
-      { label: "Projects", href: "/projects", icon: <FolderKanban className="h-5 w-5" /> },
-      { label: "Tickets", href: "/tickets", icon: <HeadphonesIcon className="h-5 w-5" /> },
+      { label: "Inventory", href: "/inventory", icon: <Package className="h-4 w-4" /> },
+      { label: "Assets", href: "/assets", icon: <Wrench className="h-4 w-4" /> },
+      { label: "Projects", href: "/projects", icon: <Folder className="h-4 w-4" /> },
+      { label: "Tickets", href: "/tickets", icon: <Headphones className="h-4 w-4" /> },
     ],
   },
   {
     title: "Finance",
     items: [
-      { label: "Sales", href: "/sales", icon: <ShoppingCart className="h-5 w-5" /> },
-      { label: "Accounting", href: "/accounting", icon: <Calculator className="h-5 w-5" /> },
-    ],
-  },
-  {
-    title: "Reports",
-    items: [
-      { label: "Reports", href: "/reports", icon: <BarChart3 className="h-5 w-5" /> },
+      { label: "Sales", href: "/sales", icon: <ShoppingBag className="h-4 w-4" /> },
+      { label: "Accounting", href: "/accounting", icon: <Calculator className="h-4 w-4" /> },
+      { label: "Customers", href: "/customers", icon: <Users className="h-4 w-4" /> },
     ],
   },
   {
     title: "System",
     items: [
-      { label: "Locations", href: "/locations", icon: <MapPin className="h-5 w-5" /> },
-      { label: "Notifications", href: "/notifications", icon: <Bell className="h-5 w-5" /> },
-      { label: "Settings", href: "/settings", icon: <Settings className="h-5 w-5" /> },
+      { label: "Reports", href: "/reports", icon: <ChartBar className="h-4 w-4" /> },
+      { label: "Locations", href: "/locations", icon: <MapPin className="h-4 w-4" /> },
+      { label: "Notifications", href: "/notifications", icon: <Bell className="h-4 w-4" /> },
+      { label: "Settings", href: "/settings", icon: <GearSix className="h-4 w-4" /> },
     ],
   },
 ];
@@ -94,45 +94,42 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
 
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r border-gray-200 bg-white transition-all duration-300",
-        collapsed ? "w-16" : "w-64"
+        "flex h-screen flex-col border-r border-border bg-card transition-all duration-200",
+        collapsed ? "w-14" : "w-56"
       )}
     >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
+      <div className="flex h-12 items-center border-b border-border px-3">
         {!collapsed && (
           <Link href="/dashboard" className="flex items-center gap-2">
-            <Building2 className="h-8 w-8 text-blue-600" />
-            <span className="text-lg font-bold text-gray-900">PRIME</span>
+            <div className="flex h-6 w-6 items-center justify-center rounded bg-foreground text-background text-xs font-bold">
+              P
+            </div>
+            <span className="text-sm font-semibold">PRIME</span>
           </Link>
         )}
-        {collapsed && <Building2 className="h-8 w-8 text-blue-600" />}
-        <button
-          onClick={onToggle}
-          className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-        >
-          {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
-        </button>
+        {collapsed && (
+          <div className="mx-auto flex h-6 w-6 items-center justify-center rounded bg-foreground text-background text-xs font-bold">
+            P
+          </div>
+        )}
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
+      <nav className="flex-1 overflow-y-auto px-2 py-2">
         {navigation.map((group) => (
-          <div key={group.title} className="mb-4">
+          <div key={group.title} className="mb-2">
             {!collapsed && (
-              <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+              <p className="mb-1 px-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                 {group.title}
-              </h3>
+              </p>
             )}
-            <ul className="space-y-1">
+            <ul className="space-y-0.5">
               {group.items.map((item) => {
                 const isActive =
                   pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -141,10 +138,10 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
                     <Link
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                        "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors",
                         isActive
-                          ? "bg-blue-50 text-blue-700"
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                          ? "bg-secondary text-foreground"
+                          : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground",
                         collapsed && "justify-center"
                       )}
                       title={collapsed ? item.label : undefined}
@@ -160,17 +157,60 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
         ))}
       </nav>
 
-      {/* Logout */}
-      <div className="border-t border-gray-200 p-3">
+      {/* Theme Toggle */}
+      <div className="border-t border-border px-2 py-2">
+        <div className={cn("flex items-center gap-1", collapsed ? "justify-center" : "px-2")}>
+          <button
+            onClick={() => setTheme("light")}
+            className={cn(
+              "rounded-md p-1.5 transition-colors",
+              theme === "light" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Sun className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => setTheme("dark")}
+            className={cn(
+              "rounded-md p-1.5 transition-colors",
+              theme === "dark" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Moon className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => setTheme("system")}
+            className={cn(
+              "rounded-md p-1.5 transition-colors",
+              theme === "system" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Monitor className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Collapse Toggle + Logout */}
+      <div className="border-t border-border px-2 py-2 space-y-1">
+        <button
+          onClick={onToggle}
+          className={cn(
+            "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground",
+            collapsed && "justify-center"
+          )}
+        >
+          {collapsed ? <CaretRight className="h-4 w-4" /> : <CaretLeft className="h-4 w-4" />}
+          {!collapsed && <span>Collapse</span>}
+        </button>
         <form action="/api/auth/logout" method="POST">
           <button
             type="submit"
             className={cn(
-              "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-700",
+              "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive",
               collapsed && "justify-center"
             )}
           >
-            <LogOut className="h-5 w-5" />
+            <SignOut className="h-4 w-4" />
             {!collapsed && <span>Logout</span>}
           </button>
         </form>

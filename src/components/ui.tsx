@@ -12,24 +12,23 @@ function cn(...inputs: ClassValue[]) {
 // ============================================
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm",
-        destructive: "bg-red-600 text-white hover:bg-red-700 shadow-sm",
-        outline: "border border-gray-300 bg-white hover:bg-gray-50 text-gray-700",
-        secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
-        ghost: "hover:bg-gray-100 text-gray-700",
-        link: "text-blue-600 underline-offset-4 hover:underline",
-        success: "bg-green-600 text-white hover:bg-green-700 shadow-sm",
-        warning: "bg-yellow-500 text-white hover:bg-yellow-600 shadow-sm",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+        outline: "border border-border bg-background hover:bg-accent hover:text-accent-foreground",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-foreground underline-offset-4 hover:underline",
+        success: "bg-success text-white hover:bg-success/90 shadow-sm",
       },
       size: {
-        default: "h-10 px-4 py-2",
+        default: "h-9 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-12 rounded-lg px-8 text-base",
-        icon: "h-10 w-10",
+        lg: "h-10 rounded-md px-8",
+        icon: "h-9 w-9",
       },
     },
     defaultVariants: {
@@ -41,10 +40,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "success" | "warning";
-  size?: "default" | "sm" | "lg" | "icon";
-}
+    VariantProps<typeof buttonVariants> {}
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => {
@@ -67,18 +63,17 @@ export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
-  helperText?: string;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, label, error, helperText, id, ...props }, ref) => {
+  ({ className, type, label, error, id, ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");
     return (
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-gray-700"
+            className="text-sm font-medium text-foreground"
           >
             {label}
           </label>
@@ -87,17 +82,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           type={type}
           id={inputId}
           className={cn(
-            "flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            error && "border-red-500 focus-visible:ring-red-500",
+            "flex h-9 w-full rounded-md border border-border bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+            error && "border-destructive focus-visible:ring-destructive",
             className
           )}
           ref={ref}
           {...props}
         />
-        {error && <p className="text-xs text-red-600">{error}</p>}
-        {helperText && !error && (
-          <p className="text-xs text-gray-500">{helperText}</p>
-        )}
+        {error && <p className="text-xs text-destructive">{error}</p>}
       </div>
     );
   }
@@ -118,11 +110,11 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, label, error, id, ...props }, ref) => {
     const textareaId = id || label?.toLowerCase().replace(/\s+/g, "-");
     return (
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {label && (
           <label
             htmlFor={textareaId}
-            className="block text-sm font-medium text-gray-700"
+            className="text-sm font-medium text-foreground"
           >
             {label}
           </label>
@@ -130,14 +122,14 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           id={textareaId}
           className={cn(
-            "flex min-h-[80px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            error && "border-red-500",
+            "flex min-h-[60px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+            error && "border-destructive",
             className
           )}
           ref={ref}
           {...props}
         />
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        {error && <p className="text-xs text-destructive">{error}</p>}
       </div>
     );
   }
@@ -160,11 +152,11 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, label, error, options, placeholder, id, ...props }, ref) => {
     const selectId = id || label?.toLowerCase().replace(/\s+/g, "-");
     return (
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {label && (
           <label
             htmlFor={selectId}
-            className="block text-sm font-medium text-gray-700"
+            className="text-sm font-medium text-foreground"
           >
             {label}
           </label>
@@ -172,8 +164,8 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         <select
           id={selectId}
           className={cn(
-            "flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            error && "border-red-500",
+            "flex h-9 w-full rounded-md border border-border bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+            error && "border-destructive",
             className
           )}
           ref={ref}
@@ -190,7 +182,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             </option>
           ))}
         </select>
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        {error && <p className="text-xs text-destructive">{error}</p>}
       </div>
     );
   }
@@ -208,7 +200,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-xl border border-gray-200 bg-white shadow-sm",
+      "rounded-lg border border-border bg-card text-card-foreground shadow-sm",
       className
     )}
     {...props}
@@ -246,7 +238,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-gray-500", className)}
+    className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
 ));
@@ -277,16 +269,17 @@ CardFooter.displayName = "CardFooter";
 // ============================================
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-blue-100 text-blue-800",
-        secondary: "border-transparent bg-gray-100 text-gray-800",
-        destructive: "border-transparent bg-red-100 text-red-800",
-        outline: "text-gray-700",
-        success: "border-transparent bg-green-100 text-green-800",
-        warning: "border-transparent bg-yellow-100 text-yellow-800",
+        default: "border-transparent bg-primary text-primary-foreground",
+        secondary: "border-transparent bg-secondary text-secondary-foreground",
+        destructive: "border-transparent bg-destructive text-destructive-foreground",
+        outline: "text-foreground",
+        success: "border-transparent bg-success/10 text-success",
+        warning: "border-transparent bg-warning/10 text-warning",
+        info: "border-transparent bg-info/10 text-info",
       },
     },
     defaultVariants: {
@@ -297,9 +290,7 @@ const badgeVariants = cva(
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {
-  variant?: "default" | "secondary" | "destructive" | "outline" | "success" | "warning";
-}
+    VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
   return (
@@ -320,31 +311,24 @@ interface StatCardProps {
   trendValue?: string;
 }
 
-function StatCard({
-  title,
-  value,
-  description,
-  icon,
-  trend,
-  trendValue,
-}: StatCardProps) {
+function StatCard({ title, value, description, icon, trend, trendValue }: StatCardProps) {
   return (
     <Card>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <p className="text-sm font-medium text-gray-500">{title}</p>
-            <p className="text-2xl font-bold">{value}</p>
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <p className="text-2xl font-bold tracking-tight">{value}</p>
             {description && (
-              <p className="text-xs text-gray-500">{description}</p>
+              <p className="text-xs text-muted-foreground">{description}</p>
             )}
             {trend && trendValue && (
               <p
                 className={cn(
                   "text-xs font-medium",
-                  trend === "up" && "text-green-600",
-                  trend === "down" && "text-red-600",
-                  trend === "neutral" && "text-gray-500"
+                  trend === "up" && "text-success",
+                  trend === "down" && "text-destructive",
+                  trend === "neutral" && "text-muted-foreground"
                 )}
               >
                 {trend === "up" && "↑"}
@@ -353,7 +337,7 @@ function StatCard({
             )}
           </div>
           {icon && (
-            <div className="rounded-lg bg-gray-100 p-3 text-gray-600">
+            <div className="rounded-lg bg-secondary p-3 text-muted-foreground">
               {icon}
             </div>
           )}
@@ -408,7 +392,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      "border-b border-gray-200 transition-colors hover:bg-gray-50",
+      "border-b border-border transition-colors hover:bg-muted/50",
       className
     )}
     {...props}
@@ -423,7 +407,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-12 px-4 text-left align-middle font-medium text-gray-500 [&:has([role=checkbox])]:pr-0",
+      "h-10 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
       className
     )}
     {...props}
@@ -444,80 +428,6 @@ const TableCell = React.forwardRef<
 TableCell.displayName = "TableCell";
 
 // ============================================
-// TABS
-// ============================================
-
-interface TabsProps {
-  tabs: { id: string; label: string; icon?: React.ReactNode }[];
-  activeTab: string;
-  onTabChange: (id: string) => void;
-}
-
-function Tabs({ tabs, activeTab, onTabChange }: TabsProps) {
-  return (
-    <div className="border-b border-gray-200">
-      <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={cn(
-              "flex items-center gap-2 border-b-2 py-4 px-1 text-sm font-medium transition-colors",
-              activeTab === tab.id
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-            )}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
-      </nav>
-    </div>
-  );
-}
-
-// ============================================
-// PROGRESS BAR
-// ============================================
-
-interface ProgressBarProps {
-  value: number;
-  max?: number;
-  className?: string;
-  color?: "blue" | "green" | "yellow" | "red";
-}
-
-function ProgressBar({
-  value,
-  max = 100,
-  className,
-  color = "blue",
-}: ProgressBarProps) {
-  const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
-  const colorClasses = {
-    blue: "bg-blue-600",
-    green: "bg-green-600",
-    yellow: "bg-yellow-500",
-    red: "bg-red-600",
-  };
-
-  return (
-    <div
-      className={cn(
-        "h-2 w-full overflow-hidden rounded-full bg-gray-200",
-        className
-      )}
-    >
-      <div
-        className={cn("h-full transition-all", colorClasses[color])}
-        style={{ width: `${percentage}%` }}
-      />
-    </div>
-  );
-}
-
-// ============================================
 // MODAL / DIALOG
 // ============================================
 
@@ -535,34 +445,24 @@ function Modal({ open, onClose, title, children, footer }: ModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
-        className="fixed inset-0 bg-black/50 transition-opacity"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative z-50 w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+      <div className="relative z-50 w-full max-w-lg rounded-lg border border-border bg-card p-6 shadow-lg">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">{title}</h2>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 hover:bg-gray-100"
+            className="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
           >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
         <div className="max-h-[60vh] overflow-y-auto">{children}</div>
         {footer && (
-          <div className="mt-4 flex justify-end gap-2 border-t pt-4">
+          <div className="mt-4 flex justify-end gap-2 border-t border-border pt-4">
             {footer}
           </div>
         )}
@@ -583,9 +483,9 @@ interface AvatarProps {
 
 function Avatar({ src, initials, size = "md" }: AvatarProps) {
   const sizeClasses = {
-    sm: "h-8 w-8 text-xs",
-    md: "h-10 w-10 text-sm",
-    lg: "h-12 w-12 text-base",
+    sm: "h-7 w-7 text-xs",
+    md: "h-8 w-8 text-sm",
+    lg: "h-10 w-10 text-base",
   };
 
   if (src) {
@@ -601,7 +501,7 @@ function Avatar({ src, initials, size = "md" }: AvatarProps) {
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-full bg-blue-100 font-medium text-blue-800",
+        "flex items-center justify-center rounded-full bg-secondary font-medium text-muted-foreground",
         sizeClasses[size]
       )}
     >
@@ -611,7 +511,7 @@ function Avatar({ src, initials, size = "md" }: AvatarProps) {
 }
 
 // ============================================
-// DROPDOWN MENU
+// DROPDOWN
 // ============================================
 
 interface DropdownMenuProps {
@@ -633,7 +533,7 @@ function DropdownMenu({ trigger, items }: DropdownMenuProps) {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-2 w-56 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+          <div className="absolute right-0 z-50 mt-1 w-48 rounded-md border border-border bg-card py-1 shadow-md">
             {items.map((item, index) => (
               <button
                 key={index}
@@ -642,8 +542,8 @@ function DropdownMenu({ trigger, items }: DropdownMenuProps) {
                   setOpen(false);
                 }}
                 className={cn(
-                  "flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-50",
-                  item.destructive && "text-red-600 hover:bg-red-50"
+                  "flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-accent",
+                  item.destructive && "text-destructive hover:bg-destructive/10"
                 )}
               >
                 {item.icon}
@@ -672,26 +572,47 @@ function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       {icon && (
-        <div className="mb-4 rounded-full bg-gray-100 p-4 text-gray-400">
+        <div className="mb-4 rounded-full bg-secondary p-4 text-muted-foreground">
           {icon}
         </div>
       )}
-      <h3 className="mb-1 text-lg font-medium text-gray-900">{title}</h3>
-      <p className="mb-4 max-w-sm text-sm text-gray-500">{description}</p>
+      <h3 className="mb-1 text-lg font-medium">{title}</h3>
+      <p className="mb-4 max-w-sm text-sm text-muted-foreground">{description}</p>
       {action}
     </div>
   );
 }
 
 // ============================================
-// SKELETON LOADER
+// SKELETON
 // ============================================
 
 function Skeleton({ className }: { className?: string }) {
   return (
-    <div
-      className={cn("animate-pulse rounded-md bg-gray-200", className)}
-    />
+    <div className={cn("animate-pulse rounded-md bg-secondary", className)} />
+  );
+}
+
+// ============================================
+// PROGRESS BAR
+// ============================================
+
+interface ProgressBarProps {
+  value: number;
+  max?: number;
+  className?: string;
+}
+
+function ProgressBar({ value, max = 100, className }: ProgressBarProps) {
+  const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+
+  return (
+    <div className={cn("h-1.5 w-full overflow-hidden rounded-full bg-secondary", className)}>
+      <div
+        className="h-full rounded-full bg-foreground transition-all"
+        style={{ width: `${percentage}%` }}
+      />
+    </div>
   );
 }
 
@@ -714,13 +635,12 @@ export {
   TableRow,
   TableHead,
   TableCell,
-  Tabs,
-  ProgressBar,
   Modal,
   Avatar,
   DropdownMenu,
   EmptyState,
   Skeleton,
+  ProgressBar,
   cn,
   buttonVariants,
 };
