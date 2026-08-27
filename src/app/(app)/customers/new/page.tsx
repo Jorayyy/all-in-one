@@ -8,7 +8,7 @@ import { Button } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import toast from "react-hot-toast";
-import { createCustomer } from "@/actions";
+import { createCustomer } from "@/actions/customers";
 
 export default function CreateCustomerPage() {
   const router = useRouter();

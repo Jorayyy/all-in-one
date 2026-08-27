@@ -8,7 +8,7 @@ import { Button } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import toast from "react-hot-toast";
-import { createProduct, getCategoriesForSelect } from "@/actions";
+import { createProduct, getCategoriesForSelect } from "@/actions/products";
 
 interface Category {
   id: string;

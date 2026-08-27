@@ -8,7 +8,8 @@ import { Button } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import toast from "react-hot-toast";
-import { createSchedule, getEmployeesForSelect, getShiftsForSelect } from "@/actions";
+import { createSchedule, getShiftsForSelect } from "@/actions/schedules";
+import { getEmployeesForSelect } from "@/actions/employees";
 
 interface Employee {
   id: string;

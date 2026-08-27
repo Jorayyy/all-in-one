@@ -8,7 +8,8 @@ import { Button } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import toast from "react-hot-toast";
-import { createAsset, getLocationsForSelect, getEmployeesForSelect } from "@/actions";
+import { createAsset, getLocationsForSelect } from "@/actions/assets";
+import { getEmployeesForSelect } from "@/actions/employees";
 
 interface Location {
   id: string;

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import toast from "react-hot-toast";
-import { createPayPeriod } from "@/actions";
+import { createPayPeriod } from "@/actions/payPeriods";
 
 export default function NewPayPeriodPage() {
   const router = useRouter();
