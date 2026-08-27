@@ -1,14 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus } from "@/components/icons";
-import { Button } from "@/components/ui";
-import { Input } from "@/components/ui";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
+import { ArrowLeft, Pencil } from "@/components/icons";
+import { Button, Input, Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import toast from "react-hot-toast";
-import { createLeave, getEmployeesForSelect } from "@/actions";
 
 interface Employee {
   id: string;
@@ -17,11 +14,14 @@ interface Employee {
   employeeNumber: string;
 }
 
-export default function NewLeavePage() {
+export default function EditLeavePage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loadingEmployees, setLoadingEmployees] = useState(true);
 
   const [form, setForm] = useState({
     employeeId: "",
@@ -33,18 +33,39 @@ export default function NewLeavePage() {
   });
 
   useEffect(() => {
-    async function fetchEmployees() {
+    async function fetchData() {
       try {
-        const data = await getEmployeesForSelect();
-        setEmployees(data);
-      } catch {
-        setEmployees([]);
+        const [leaveRes, employeesRes] = await Promise.all([
+          fetch(`/api/leaves/${id}`),
+          fetch("/api/employees-list"),
+        ]);
+
+        if (!leaveRes.ok) throw new Error("Failed to fetch leave");
+        const leaveData = await leaveRes.json();
+        const leave = leaveData.leave || leaveData;
+
+        setForm({
+          employeeId: leave.employeeId || "",
+          type: leave.type || "",
+          startDate: leave.startDate ? new Date(leave.startDate).toISOString().slice(0, 10) : "",
+          endDate: leave.endDate ? new Date(leave.endDate).toISOString().slice(0, 10) : "",
+          days: leave.days != null ? String(leave.days) : "",
+          reason: leave.reason || "",
+        });
+
+        if (employeesRes.ok) {
+          const empData = await employeesRes.json();
+          setEmployees(empData.employees || empData || []);
+        }
+      } catch (error: any) {
+        toast.error(error.message || "Failed to load leave");
       } finally {
-        setLoadingEmployees(false);
+        setLoading(false);
       }
     }
-    fetchEmployees();
-  }, []);
+
+    if (id) fetchData();
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -55,12 +76,21 @@ export default function NewLeavePage() {
     setSubmitting(true);
 
     try {
-      await createLeave({
-        ...form,
-        days: Number(form.days),
-      } as any);
+      const res = await fetch(`/api/leaves/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          days: Number(form.days),
+        }),
+      });
 
-      toast.success("Leave request created successfully");
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to update leave");
+      }
+
+      toast.success("Leave updated successfully");
       router.push("/leaves");
     } catch (error: any) {
       toast.error(error.message || "Something went wrong");
@@ -68,6 +98,29 @@ export default function NewLeavePage() {
       setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <div className="h-8 w-16 animate-pulse rounded-md bg-secondary" />
+          <div className="space-y-2">
+            <div className="h-6 w-32 animate-pulse rounded bg-secondary" />
+            <div className="h-4 w-48 animate-pulse rounded bg-secondary" />
+          </div>
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="h-10 w-full animate-pulse rounded bg-secondary" />
+              <div className="h-10 w-full animate-pulse rounded bg-secondary" />
+              <div className="h-24 w-full animate-pulse rounded bg-secondary" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -78,8 +131,8 @@ export default function NewLeavePage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Create Leave Request</h1>
-          <p className="text-muted-foreground">Submit a new leave request</p>
+          <h1 className="text-2xl font-bold">Edit Leave Request</h1>
+          <p className="text-muted-foreground">Update leave details</p>
         </div>
       </div>
 
@@ -99,9 +152,11 @@ export default function NewLeavePage() {
                   required
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
-                  <option value="">{loadingEmployees ? "Loading..." : "Select employee"}</option>
+                  <option value="">Select employee</option>
                   {employees.map((emp) => (
-                    <option key={emp.id} value={emp.id}>{emp.firstName} {emp.lastName} ({emp.employeeNumber})</option>
+                    <option key={emp.id} value={emp.id}>
+                      {emp.firstName} {emp.lastName} ({emp.employeeNumber})
+                    </option>
                   ))}
                 </select>
               </div>
@@ -156,10 +211,15 @@ export default function NewLeavePage() {
               />
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <Link href="/leaves">
+                <Button type="button" variant="outline">
+                  Cancel
+                </Button>
+              </Link>
               <Button type="submit" disabled={submitting}>
-                <Plus className="h-4 w-4 mr-2" />
-                {submitting ? "Submitting..." : "Submit Request"}
+                <Pencil className="h-4 w-4 mr-2" />
+                {submitting ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </form>

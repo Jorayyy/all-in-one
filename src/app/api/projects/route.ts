@@ -2,6 +2,21 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 
+export async function GET() {
+  try {
+    await requireAuth();
+    const projects = await db.project.findMany({
+      where: { deletedAt: null },
+      select: { id: true, name: true, code: true, status: true },
+      orderBy: { name: "asc" },
+    });
+    return NextResponse.json({ projects });
+  } catch (error) {
+    console.error("Fetch projects error:", error);
+    return NextResponse.json({ error: "Failed to fetch projects" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     await requireAuth();

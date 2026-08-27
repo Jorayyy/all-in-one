@@ -8,6 +8,7 @@ import { Button } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import toast from "react-hot-toast";
+import { createPayPeriod } from "@/actions";
 
 export default function NewPayPeriodPage() {
   const router = useRouter();
@@ -27,16 +28,7 @@ export default function NewPayPeriodPage() {
     setSubmitting(true);
 
     try {
-      const res = await fetch("/api/pay-periods", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to create pay period");
-      }
+      await createPayPeriod(form);
 
       toast.success("Pay period created successfully");
       router.push("/payroll");

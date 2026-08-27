@@ -3,6 +3,21 @@ import { db } from "@/lib/db";
 import { requireAuth, hashPassword } from "@/lib/auth";
 import { randomBytes } from "crypto";
 
+export async function GET() {
+  try {
+    await requireAuth();
+    const employees = await db.employee.findMany({
+      where: { deletedAt: null },
+      select: { id: true, firstName: true, lastName: true, employeeNumber: true, department: { select: { name: true } } },
+      orderBy: { firstName: "asc" },
+    });
+    return NextResponse.json({ employees });
+  } catch (error) {
+    console.error("Fetch employees error:", error);
+    return NextResponse.json({ error: "Failed to fetch employees" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     await requireAuth();

@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus } from "@/components/icons";
+import { ArrowLeft, Pencil } from "@/components/icons";
 import { Button } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import toast from "react-hot-toast";
-import { createTicket, getCustomersForSelect, getEmployeesForSelect } from "@/actions";
 
 interface Customer {
   id: string;
@@ -23,8 +22,12 @@ interface Employee {
   employeeNumber: string;
 }
 
-export default function CreateTicketPage() {
+export default function EditTicketPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -43,12 +46,19 @@ export default function CreateTicketPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [custData, empData] = await Promise.all([
-          getCustomersForSelect(),
-          getEmployeesForSelect(),
+        const [custRes, empRes] = await Promise.all([
+          fetch("/api/customers"),
+          fetch("/api/employees-list"),
         ]);
-        setCustomers(custData);
-        setEmployees(empData);
+
+        if (custRes.ok) {
+          const custData = await custRes.json();
+          setCustomers(custData.customers || custData || []);
+        }
+        if (empRes.ok) {
+          const empData = await empRes.json();
+          setEmployees(empData.employees || empData || []);
+        }
       } catch {
         setCustomers([]);
         setEmployees([]);
@@ -59,6 +69,31 @@ export default function CreateTicketPage() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    async function fetchTicket() {
+      try {
+        const res = await fetch(`/api/tickets/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch ticket");
+        const data = await res.json();
+        const ticket = data.ticket || data;
+        setForm({
+          title: ticket.title || "",
+          description: ticket.description || "",
+          category: ticket.category || "",
+          priority: ticket.priority || "",
+          customerId: ticket.customerId || "",
+          assigneeId: ticket.assigneeId || "",
+          dueDate: ticket.dueDate ? new Date(ticket.dueDate).toISOString().split("T")[0] : "",
+        });
+      } catch (error: any) {
+        toast.error(error.message || "Failed to load ticket");
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (id) fetchTicket();
+  }, [id]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -68,10 +103,20 @@ export default function CreateTicketPage() {
     setSubmitting(true);
 
     try {
-      await createTicket(form as any);
+      const res = await fetch(`/api/tickets/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          assigneeId: form.assigneeId || null,
+        }),
+      });
 
-      toast.success("Ticket created successfully");
-      router.push("/tickets");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update ticket");
+
+      toast.success("Ticket updated successfully");
+      router.push(`/tickets/${id}`);
     } catch (error: any) {
       toast.error(error.message || "Something went wrong");
     } finally {
@@ -79,17 +124,40 @@ export default function CreateTicketPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Link href={`/tickets/${id}`}>
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4" /> Back
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold">Edit Ticket</h1>
+            <p className="text-muted-foreground">Update ticket information</p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/tickets">
+        <Link href={`/tickets/${id}`}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Create Ticket</h1>
-          <p className="text-muted-foreground">Create a new support ticket</p>
+          <h1 className="text-2xl font-bold">Edit Ticket</h1>
+          <p className="text-muted-foreground">Update ticket information</p>
         </div>
       </div>
 
@@ -185,8 +253,8 @@ export default function CreateTicketPage() {
             </div>
             <div className="flex justify-end">
               <Button type="submit" disabled={submitting}>
-                <Plus className="h-4 w-4 mr-2" />
-                {submitting ? "Creating..." : "Create Ticket"}
+                <Pencil className="h-4 w-4 mr-2" />
+                {submitting ? "Updating..." : "Update Ticket"}
               </Button>
             </div>
           </form>

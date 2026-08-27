@@ -2,6 +2,21 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 
+export async function GET() {
+  try {
+    await requireAuth();
+    const tickets = await db.serviceTicket.findMany({
+      select: { id: true, number: true, title: true, status: true, priority: true },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
+    return NextResponse.json({ tickets });
+  } catch (error) {
+    console.error("Fetch tickets error:", error);
+    return NextResponse.json({ error: "Failed to fetch tickets" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const session = await requireAuth();

@@ -2,6 +2,21 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 
+export async function GET() {
+  try {
+    await requireAuth();
+    const products = await db.product.findMany({
+      where: { deletedAt: null },
+      select: { id: true, name: true, sku: true, categoryId: true },
+      orderBy: { name: "asc" },
+    });
+    return NextResponse.json({ products });
+  } catch (error) {
+    console.error("Fetch products error:", error);
+    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     await requireAuth();

@@ -1,17 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus } from "@/components/icons";
+import { ArrowLeft, Pencil } from "@/components/icons";
 import { Button } from "@/components/ui";
 import { Input } from "@/components/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import toast from "react-hot-toast";
-import { createCustomer } from "@/actions";
 
-export default function CreateCustomerPage() {
+export default function EditCustomerPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -24,6 +27,32 @@ export default function CreateCustomerPage() {
     notes: "",
   });
 
+  useEffect(() => {
+    async function fetchCustomer() {
+      try {
+        const res = await fetch(`/api/customers/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch customer");
+        const data = await res.json();
+        const customer = data.customer || data;
+        setForm({
+          name: customer.name || "",
+          type: customer.type || "",
+          email: customer.email || "",
+          phone: customer.phone || "",
+          address: customer.address || "",
+          tinNumber: customer.tinNumber || "",
+          contactPerson: customer.contactPerson || "",
+          notes: customer.notes || "",
+        });
+      } catch (error: any) {
+        toast.error(error.message || "Failed to load customer");
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (id) fetchCustomer();
+  }, [id]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -33,10 +62,17 @@ export default function CreateCustomerPage() {
     setSubmitting(true);
 
     try {
-      await createCustomer(form);
+      const res = await fetch(`/api/customers/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-      toast.success("Customer created successfully");
-      router.push("/customers");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update customer");
+
+      toast.success("Customer updated successfully");
+      router.push(`/customers/${id}`);
     } catch (error: any) {
       toast.error(error.message || "Something went wrong");
     } finally {
@@ -44,17 +80,40 @@ export default function CreateCustomerPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Link href={`/customers/${id}`}>
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4" /> Back
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold">Edit Customer</h1>
+            <p className="text-muted-foreground">Update customer information</p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/customers">
+        <Link href={`/customers/${id}`}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Create Customer</h1>
-          <p className="text-muted-foreground">Add a new customer to the system</p>
+          <h1 className="text-2xl font-bold">Edit Customer</h1>
+          <p className="text-muted-foreground">Update customer information</p>
         </div>
       </div>
 
@@ -123,8 +182,8 @@ export default function CreateCustomerPage() {
             </div>
             <div className="flex justify-end">
               <Button type="submit" disabled={submitting}>
-                <Plus className="h-4 w-4 mr-2" />
-                {submitting ? "Creating..." : "Create Customer"}
+                <Pencil className="h-4 w-4 mr-2" />
+                {submitting ? "Updating..." : "Update Customer"}
               </Button>
             </div>
           </form>

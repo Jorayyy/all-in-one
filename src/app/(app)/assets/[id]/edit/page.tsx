@@ -1,19 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus } from "@/components/icons";
-import { Button } from "@/components/ui";
-import { Input } from "@/components/ui";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
+import { ArrowLeft, Pencil } from "@/components/icons";
+import { Button, Input, Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import toast from "react-hot-toast";
-import { createAsset, getLocationsForSelect, getEmployeesForSelect } from "@/actions";
 
 interface Location {
   id: string;
   name: string;
-  type: string;
+  code: string;
 }
 
 interface Employee {
@@ -23,12 +20,15 @@ interface Employee {
   employeeNumber: string;
 }
 
-export default function NewAssetPage() {
+export default function EditAssetPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [locations, setLocations] = useState<Location[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loadingData, setLoadingData] = useState(true);
 
   const [form, setForm] = useState({
     name: "",
@@ -46,20 +46,47 @@ export default function NewAssetPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [locData, empData] = await Promise.all([
-          getLocationsForSelect(),
-          getEmployeesForSelect(),
+        const [assetRes, locationsRes, employeesRes] = await Promise.all([
+          fetch(`/api/assets/${id}`),
+          fetch("/api/locations"),
+          fetch("/api/employees-list"),
         ]);
-        setLocations(locData);
-        setEmployees(empData);
-      } catch {
-        // silently fail
+
+        if (!assetRes.ok) throw new Error("Failed to fetch asset");
+        const assetData = await assetRes.json();
+        const asset = assetData.asset || assetData;
+
+        setForm({
+          name: asset.name || "",
+          code: asset.code || "",
+          description: asset.description || "",
+          serialNumber: asset.serialNumber || "",
+          purchaseDate: asset.purchaseDate ? new Date(asset.purchaseDate).toISOString().slice(0, 10) : "",
+          purchaseCost: asset.purchaseCost != null ? String(asset.purchaseCost) : "",
+          status: asset.status || "AVAILABLE",
+          locationId: asset.locationId || "",
+          assigneeId: asset.assigneeId || "",
+          nextMaintenance: asset.nextMaintenance ? new Date(asset.nextMaintenance).toISOString().slice(0, 10) : "",
+        });
+
+        if (locationsRes.ok) {
+          const locData = await locationsRes.json();
+          setLocations(locData.locations || locData || []);
+        }
+
+        if (employeesRes.ok) {
+          const empData = await employeesRes.json();
+          setEmployees(empData.employees || empData || []);
+        }
+      } catch (error: any) {
+        toast.error(error.message || "Failed to load asset");
       } finally {
-        setLoadingData(false);
+        setLoading(false);
       }
     }
-    fetchData();
-  }, []);
+
+    if (id) fetchData();
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -70,12 +97,25 @@ export default function NewAssetPage() {
     setSubmitting(true);
 
     try {
-      await createAsset({
-        ...form,
-        purchaseCost: form.purchaseCost ? Number(form.purchaseCost) : undefined,
-      } as any);
+      const res = await fetch(`/api/assets/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          purchaseCost: form.purchaseCost ? Number(form.purchaseCost) : null,
+          purchaseDate: form.purchaseDate || null,
+          nextMaintenance: form.nextMaintenance || null,
+          locationId: form.locationId || null,
+          assigneeId: form.assigneeId || null,
+        }),
+      });
 
-      toast.success("Asset created successfully");
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to update asset");
+      }
+
+      toast.success("Asset updated successfully");
       router.push("/assets");
     } catch (error: any) {
       toast.error(error.message || "Something went wrong");
@@ -83,6 +123,29 @@ export default function NewAssetPage() {
       setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <div className="h-8 w-16 animate-pulse rounded-md bg-secondary" />
+          <div className="space-y-2">
+            <div className="h-6 w-32 animate-pulse rounded bg-secondary" />
+            <div className="h-4 w-48 animate-pulse rounded bg-secondary" />
+          </div>
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="h-10 w-full animate-pulse rounded bg-secondary" />
+              <div className="h-10 w-full animate-pulse rounded bg-secondary" />
+              <div className="h-24 w-full animate-pulse rounded bg-secondary" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -93,8 +156,8 @@ export default function NewAssetPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Create Asset</h1>
-          <p className="text-muted-foreground">Register a new company asset</p>
+          <h1 className="text-2xl font-bold">Edit Asset</h1>
+          <p className="text-muted-foreground">Update asset information</p>
         </div>
       </div>
 
@@ -121,8 +184,8 @@ export default function NewAssetPage() {
                 <Input name="serialNumber" value={form.serialNumber} onChange={handleChange} placeholder="Serial number" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Purchase Cost *</label>
-                <Input type="number" name="purchaseCost" step="0.01" min="0" value={form.purchaseCost} onChange={handleChange} required placeholder="0.00" />
+                <label className="text-sm font-medium">Purchase Cost</label>
+                <Input type="number" name="purchaseCost" step="0.01" min="0" value={form.purchaseCost} onChange={handleChange} placeholder="0.00" />
               </div>
             </div>
 
@@ -140,8 +203,8 @@ export default function NewAssetPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Purchase Date *</label>
-                <Input type="date" name="purchaseDate" value={form.purchaseDate} onChange={handleChange} required />
+                <label className="text-sm font-medium">Purchase Date</label>
+                <Input type="date" name="purchaseDate" value={form.purchaseDate} onChange={handleChange} />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Next Maintenance</label>
@@ -161,20 +224,23 @@ export default function NewAssetPage() {
                   <option value="AVAILABLE">Available</option>
                   <option value="IN_USE">In Use</option>
                   <option value="MAINTENANCE">Maintenance</option>
+                  <option value="RETIRED">Retired</option>
+                  <option value="LOST">Lost</option>
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Location *</label>
+                <label className="text-sm font-medium">Location</label>
                 <select
                   name="locationId"
                   value={form.locationId}
                   onChange={handleChange}
-                  required
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
-                  <option value="">{loadingData ? "Loading..." : "Select location"}</option>
+                  <option value="">Select location</option>
                   {locations.map((loc) => (
-                    <option key={loc.id} value={loc.id}>{loc.name} ({loc.type})</option>
+                    <option key={loc.id} value={loc.id}>
+                      {loc.name} ({loc.code})
+                    </option>
                   ))}
                 </select>
               </div>
@@ -188,17 +254,24 @@ export default function NewAssetPage() {
                 onChange={handleChange}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
-                <option value="">{loadingData ? "Loading..." : "Unassigned"}</option>
+                <option value="">Unassigned</option>
                 {employees.map((emp) => (
-                  <option key={emp.id} value={emp.id}>{emp.firstName} {emp.lastName} ({emp.employeeNumber})</option>
+                  <option key={emp.id} value={emp.id}>
+                    {emp.firstName} {emp.lastName} ({emp.employeeNumber})
+                  </option>
                 ))}
               </select>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <Link href="/assets">
+                <Button type="button" variant="outline">
+                  Cancel
+                </Button>
+              </Link>
               <Button type="submit" disabled={submitting}>
-                <Plus className="h-4 w-4 mr-2" />
-                {submitting ? "Creating..." : "Create Asset"}
+                <Pencil className="h-4 w-4 mr-2" />
+                {submitting ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </form>

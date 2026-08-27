@@ -105,3 +105,11 @@ export async function getAssetById(id: string) {
     },
   });
 }
+
+export async function getLocationsForSelect() {
+  await requireAuth();
+  return db.location.findMany({
+    select: { id: true, name: true, type: true },
+    orderBy: { name: "asc" },
+  });
+}

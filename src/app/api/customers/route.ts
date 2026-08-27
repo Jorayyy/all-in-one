@@ -2,6 +2,21 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 
+export async function GET() {
+  try {
+    await requireAuth();
+    const customers = await db.customer.findMany({
+      where: { deletedAt: null },
+      select: { id: true, name: true, type: true },
+      orderBy: { name: "asc" },
+    });
+    return NextResponse.json({ customers });
+  } catch (error) {
+    console.error("Fetch customers error:", error);
+    return NextResponse.json({ error: "Failed to fetch customers" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     await requireAuth();

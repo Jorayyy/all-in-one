@@ -1,14 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus } from "@/components/icons";
-import { Button } from "@/components/ui";
-import { Input } from "@/components/ui";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
+import { ArrowLeft, Pencil } from "@/components/icons";
+import { Button, Input, Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import toast from "react-hot-toast";
-import { createSchedule, getEmployeesForSelect, getShiftsForSelect } from "@/actions";
 
 interface Employee {
   id: string;
@@ -25,12 +22,15 @@ interface Shift {
   isNight: boolean;
 }
 
-export default function NewSchedulePage() {
+export default function EditSchedulePage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [shifts, setShifts] = useState<Shift[]>([]);
-  const [loadingData, setLoadingData] = useState(true);
 
   const [form, setForm] = useState({
     employeeId: "",
@@ -42,20 +42,41 @@ export default function NewSchedulePage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [empData, shiftData] = await Promise.all([
-          getEmployeesForSelect(),
-          getShiftsForSelect(),
+        const [scheduleRes, employeesRes, shiftsRes] = await Promise.all([
+          fetch(`/api/schedules/${id}`),
+          fetch("/api/employees-list"),
+          fetch("/api/shifts"),
         ]);
-        setEmployees(empData);
-        setShifts(shiftData);
-      } catch {
-        // silently fail
+
+        if (!scheduleRes.ok) throw new Error("Failed to fetch schedule");
+        const scheduleData = await scheduleRes.json();
+        const schedule = scheduleData.schedule || scheduleData;
+
+        setForm({
+          employeeId: schedule.employeeId || "",
+          shiftId: schedule.shiftId || "",
+          date: schedule.date ? new Date(schedule.date).toISOString().slice(0, 10) : "",
+          isRestDay: Boolean(schedule.isRestDay),
+        });
+
+        if (employeesRes.ok) {
+          const empData = await employeesRes.json();
+          setEmployees(empData.employees || empData || []);
+        }
+
+        if (shiftsRes.ok) {
+          const shiftData = await shiftsRes.json();
+          setShifts(shiftData.shifts || shiftData || []);
+        }
+      } catch (error: any) {
+        toast.error(error.message || "Failed to load schedule");
       } finally {
-        setLoadingData(false);
+        setLoading(false);
       }
     }
-    fetchData();
-  }, []);
+
+    if (id) fetchData();
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -70,9 +91,18 @@ export default function NewSchedulePage() {
     setSubmitting(true);
 
     try {
-      await createSchedule(form);
+      const res = await fetch(`/api/schedules/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-      toast.success("Schedule created successfully");
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to update schedule");
+      }
+
+      toast.success("Schedule updated successfully");
       router.push("/schedules");
     } catch (error: any) {
       toast.error(error.message || "Something went wrong");
@@ -80,6 +110,28 @@ export default function NewSchedulePage() {
       setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <div className="h-8 w-16 animate-pulse rounded-md bg-secondary" />
+          <div className="space-y-2">
+            <div className="h-6 w-32 animate-pulse rounded bg-secondary" />
+            <div className="h-4 w-48 animate-pulse rounded bg-secondary" />
+          </div>
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="h-10 w-full animate-pulse rounded bg-secondary" />
+              <div className="h-10 w-full animate-pulse rounded bg-secondary" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -90,8 +142,8 @@ export default function NewSchedulePage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Create Schedule</h1>
-          <p className="text-muted-foreground">Assign a shift schedule to an employee</p>
+          <h1 className="text-2xl font-bold">Edit Schedule</h1>
+          <p className="text-muted-foreground">Update shift assignment</p>
         </div>
       </div>
 
@@ -111,9 +163,11 @@ export default function NewSchedulePage() {
                   required
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
-                  <option value="">{loadingData ? "Loading..." : "Select employee"}</option>
+                  <option value="">Select employee</option>
                   {employees.map((emp) => (
-                    <option key={emp.id} value={emp.id}>{emp.firstName} {emp.lastName} ({emp.employeeNumber})</option>
+                    <option key={emp.id} value={emp.id}>
+                      {emp.firstName} {emp.lastName} ({emp.employeeNumber})
+                    </option>
                   ))}
                 </select>
               </div>
@@ -126,7 +180,7 @@ export default function NewSchedulePage() {
                   required
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
-                  <option value="">{loadingData ? "Loading..." : "Select shift"}</option>
+                  <option value="">Select shift</option>
                   {shifts.map((shift) => (
                     <option key={shift.id} value={shift.id}>
                       {shift.name} ({shift.startTime} - {shift.endTime}){shift.isNight ? " (Night)" : ""}
@@ -155,10 +209,15 @@ export default function NewSchedulePage() {
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <Link href="/schedules">
+                <Button type="button" variant="outline">
+                  Cancel
+                </Button>
+              </Link>
               <Button type="submit" disabled={submitting}>
-                <Plus className="h-4 w-4 mr-2" />
-                {submitting ? "Creating..." : "Create Schedule"}
+                <Pencil className="h-4 w-4 mr-2" />
+                {submitting ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </form>
