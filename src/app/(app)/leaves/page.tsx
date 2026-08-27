@@ -1,16 +1,14 @@
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from "@/components/ui";
+import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
 import { formatDate } from "@/lib/format";
-import { Plus, Filter, Check, X } from "lucide-react";
+import { Plus, Check, X, Warning } from "phosphor-react";
 
 export default async function LeavesPage() {
   await requireAuth();
 
   const leaves = await db.leave.findMany({
-    include: {
-      employee: true,
-    },
+    include: { employee: true },
     orderBy: { createdAt: "desc" },
   });
 
@@ -18,13 +16,6 @@ export default async function LeavesPage() {
     pending: leaves.filter((l) => l.status === "PENDING").length,
     approved: leaves.filter((l) => l.status === "APPROVED").length,
     rejected: leaves.filter((l) => l.status === "REJECTED").length,
-  };
-
-  const statusColors: Record<string, string> = {
-    PENDING: "warning",
-    APPROVED: "success",
-    REJECTED: "destructive",
-    CANCELLED: "secondary",
   };
 
   const leaveTypeLabels: Record<string, string> = {
@@ -41,23 +32,22 @@ export default async function LeavesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Leave Management</h2>
-          <p className="text-gray-500">Manage employee leave requests</p>
+          <h2 className="text-xl font-semibold">Leaves</h2>
+          <p className="text-sm text-muted-foreground">Manage leave requests</p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
+        <Button size="sm">
+          <Plus className="mr-1.5 h-4 w-4" />
           New Request
         </Button>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Pending</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+                <p className="text-xs text-muted-foreground">Pending</p>
+                <p className="text-xl font-semibold">{stats.pending}</p>
               </div>
               <Badge variant="warning">{stats.pending}</Badge>
             </div>
@@ -67,8 +57,8 @@ export default async function LeavesPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Approved</p>
-                <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+                <p className="text-xs text-muted-foreground">Approved</p>
+                <p className="text-xl font-semibold">{stats.approved}</p>
               </div>
               <Badge variant="success">{stats.approved}</Badge>
             </div>
@@ -78,8 +68,8 @@ export default async function LeavesPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Rejected</p>
-                <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
+                <p className="text-xs text-muted-foreground">Rejected</p>
+                <p className="text-xl font-semibold">{stats.rejected}</p>
               </div>
               <Badge variant="destructive">{stats.rejected}</Badge>
             </div>
@@ -87,58 +77,55 @@ export default async function LeavesPage() {
         </Card>
       </div>
 
-      {/* Leave Requests */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Leave Requests</CardTitle>
-            <Button variant="outline" size="sm">
-              <Filter className="mr-2 h-4 w-4" />
-              Filter
-            </Button>
-          </div>
+          <CardTitle>Requests</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-2">
             {leaves.length === 0 ? (
-              <p className="py-8 text-center text-gray-500">No leave requests found</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                No leave requests
+              </p>
             ) : (
               leaves.map((leave) => (
                 <div
                   key={leave.id}
-                  className="flex items-center justify-between rounded-lg border p-4"
+                  className="flex items-center justify-between rounded-md border border-border p-4"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-800">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-xs font-medium">
                       {leave.employee.firstName.charAt(0)}
                       {leave.employee.lastName.charAt(0)}
                     </div>
                     <div>
-                      <p className="font-medium">
+                      <p className="text-sm font-medium">
                         {leave.employee.firstName} {leave.employee.lastName}
                       </p>
-                      <p className="text-sm text-gray-500">
-                        {leaveTypeLabels[leave.type]} • {leave.days} day(s)
-                      </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-muted-foreground">
+                        {leaveTypeLabels[leave.type]} • {leave.days} day(s) •{" "}
                         {formatDate(leave.startDate)} - {formatDate(leave.endDate)}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500">Reason</p>
-                      <p className="max-w-xs text-sm">{leave.reason}</p>
-                    </div>
-                    <Badge variant={statusColors[leave.status] as any}>
+                  <div className="flex items-center gap-3">
+                    <Badge
+                      variant={
+                        leave.status === "PENDING"
+                          ? "warning"
+                          : leave.status === "APPROVED"
+                          ? "success"
+                          : "destructive"
+                      }
+                    >
                       {leave.status}
                     </Badge>
                     {leave.status === "PENDING" && (
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="success">
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="ghost" className="text-success hover:bg-success/10">
                           <Check className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="destructive">
+                        <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10">
                           <X className="h-4 w-4" />
                         </Button>
                       </div>

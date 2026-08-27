@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Avatar, DropdownMenu } from "@/components/ui";
 import { getInitials, fullName } from "@/lib/format";
-import { Bell, Menu } from "phosphor-react";
+import { Bell, List } from "phosphor-react";
 
 interface HeaderProps {
   user: {
@@ -39,7 +39,7 @@ export function Header({ user, onMenuClick }: HeaderProps) {
           onClick={onMenuClick}
           className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground lg:hidden"
         >
-          <Menu className="h-4 w-4" />
+          <List className="h-4 w-4" />
         </button>
         <h1 className="text-sm font-medium">{getPageTitle()}</h1>
       </div>

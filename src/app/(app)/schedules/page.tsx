@@ -1,8 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from "@/components/ui";
-import { formatDate } from "@/lib/format";
-import { Plus, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
+import { Plus, CaretLeft, CaretRight } from "phosphor-react";
 
 export default async function SchedulesPage() {
   await requireAuth();
@@ -15,21 +14,13 @@ export default async function SchedulesPage() {
 
   const schedules = await db.schedule.findMany({
     where: {
-      date: {
-        gte: startOfWeek,
-        lte: endOfWeek,
-      },
+      date: { gte: startOfWeek, lte: endOfWeek },
     },
-    include: {
-      employee: true,
-      shift: true,
-    },
+    include: { employee: true, shift: true },
     orderBy: { date: "asc" },
   });
 
-  const shifts = await db.shift.findMany({
-    orderBy: { startTime: "asc" },
-  });
+  const shifts = await db.shift.findMany({ orderBy: { startTime: "asc" } });
 
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const date = new Date(startOfWeek);
@@ -41,111 +32,68 @@ export default async function SchedulesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Schedules</h2>
-          <p className="text-gray-500">Manage employee shifts and schedules</p>
+          <h2 className="text-xl font-semibold">Schedules</h2>
+          <p className="text-sm text-muted-foreground">Manage employee shifts</p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Schedule
+        <Button size="sm">
+          <Plus className="mr-1.5 h-4 w-4" />
+          Create
         </Button>
       </div>
 
-      {/* Week Navigation */}
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <Button variant="outline" size="sm">
-              <ChevronLeft className="h-4 w-4" />
+              <CaretLeft className="h-4 w-4" />
             </Button>
-            <h3 className="text-lg font-semibold">
-              {startOfWeek.toLocaleDateString("en-PH", {
-                month: "long",
-                day: "numeric",
-              })}{" "}
-              -{" "}
-              {endOfWeek.toLocaleDateString("en-PH", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
+            <h3 className="text-sm font-medium">
+              {startOfWeek.toLocaleDateString("en-PH", { month: "short", day: "numeric" })} -{" "}
+              {endOfWeek.toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" })}
             </h3>
             <Button variant="outline" size="sm">
-              <ChevronRight className="h-4 w-4" />
+              <CaretRight className="h-4 w-4" />
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Calendar Grid */}
       <Card>
         <CardContent className="p-0">
-          <div className="grid grid-cols-7 divide-x divide-gray-200">
+          <div className="grid grid-cols-7 divide-x divide-border">
             {weekDays.map((day, index) => (
-              <div key={index} className="min-h-[400px]">
+              <div key={index} className="min-h-[300px]">
                 <div
-                  className={`border-b p-2 text-center ${
+                  className={`border-b border-border p-2 text-center ${
                     day.toDateString() === today.toDateString()
-                      ? "bg-blue-50 text-blue-600"
-                      : "bg-gray-50"
+                      ? "bg-secondary"
+                      : ""
                   }`}
                 >
-                  <p className="text-xs text-gray-500">
+                  <p className="text-[10px] text-muted-foreground">
                     {day.toLocaleDateString("en-PH", { weekday: "short" })}
                   </p>
-                  <p className="text-lg font-semibold">{day.getDate()}</p>
+                  <p className="text-sm font-medium">{day.getDate()}</p>
                 </div>
                 <div className="space-y-1 p-1">
                   {schedules
-                    .filter(
-                      (s) =>
-                        new Date(s.date).toDateString() === day.toDateString()
-                    )
+                    .filter((s) => new Date(s.date).toDateString() === day.toDateString())
                     .map((schedule) => (
                       <div
                         key={schedule.id}
-                        className={`rounded p-1 text-xs ${
+                        className={`rounded p-1 text-[10px] ${
                           schedule.isRestDay
-                            ? "bg-gray-100 text-gray-500"
-                            : "bg-blue-100 text-blue-800"
+                            ? "bg-secondary text-muted-foreground"
+                            : "bg-foreground text-background"
                         }`}
                       >
                         <p className="font-medium">
-                          {schedule.employee.firstName}{" "}
-                          {schedule.employee.lastName.charAt(0)}.
+                          {schedule.employee.firstName} {schedule.employee.lastName.charAt(0)}.
                         </p>
-                        <p>
-                          {schedule.shift.startTime} - {schedule.shift.endTime}
-                        </p>
+                        <p>{schedule.shift.startTime}-{schedule.shift.endTime}</p>
                       </div>
                     ))}
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Shifts */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Available Shifts</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            {shifts.map((shift) => (
-              <div
-                key={shift.id}
-                className="flex items-center justify-between rounded-lg border p-4"
-              >
-                <div>
-                  <p className="font-medium">{shift.name}</p>
-                  <p className="text-sm text-gray-500">
-                    {shift.startTime} - {shift.endTime}
-                  </p>
-                </div>
-                {shift.isNight && (
-                  <Badge variant="secondary">Night Shift</Badge>
-                )}
               </div>
             ))}
           </div>

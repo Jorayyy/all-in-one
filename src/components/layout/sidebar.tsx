@@ -18,7 +18,7 @@ import {
   MapPin,
   GearSix,
   SignOut,
-  Building,
+  Buildings,
   FileText,
   ChartBar,
   Bell,

@@ -1,7 +1,6 @@
 import { requireAuth } from "@/lib/auth";
-import { Card, CardContent, CardHeader, CardTitle, Button } from "@/components/ui";
-import { BarChart3, Download, FileText, Users, DollarSign, Package } from "lucide-react";
-import Link from "next/link";
+import { Card, CardContent, Button } from "@/components/ui";
+import { FileText, Download, Users, Clock, Money, Package, TrendUp, Folder } from "phosphor-react";
 
 export default async function ReportsPage() {
   await requireAuth();
@@ -11,62 +10,54 @@ export default async function ReportsPage() {
       title: "Employee Report",
       description: "List of all employees with details",
       icon: Users,
-      href: "/reports/employees",
     },
     {
       title: "Attendance Report",
       description: "Monthly attendance summary",
-      icon: FileText,
-      href: "/reports/attendance",
+      icon: Clock,
     },
     {
       title: "Payroll Report",
       description: "Payroll summary and deductions",
-      icon: DollarSign,
-      href: "/reports/payroll",
+      icon: Money,
     },
     {
       title: "Inventory Report",
       description: "Stock levels and movements",
       icon: Package,
-      href: "/reports/inventory",
     },
     {
       title: "Sales Report",
       description: "Revenue and invoice summary",
-      icon: BarChart3,
-      href: "/reports/sales",
+      icon: TrendUp,
     },
     {
       title: "Project Report",
       description: "Project status and progress",
-      icon: FileText,
-      href: "/reports/projects",
+      icon: Folder,
     },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Reports</h2>
-        <p className="text-gray-500">Generate and download reports</p>
+        <h2 className="text-xl font-semibold">Reports</h2>
+        <p className="text-sm text-muted-foreground">Generate and download reports</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {reports.map((report) => (
-          <Card key={report.title} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                <report.icon className="h-6 w-6 text-blue-600" />
+          <Card key={report.title} className="transition-shadow hover:shadow-md">
+            <CardContent className="p-5">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-secondary">
+                <report.icon className="h-5 w-5 text-muted-foreground" />
               </div>
-              <h3 className="mb-2 font-semibold">{report.title}</h3>
-              <p className="mb-4 text-sm text-gray-500">{report.description}</p>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
-              </div>
+              <h3 className="mb-1 text-sm font-medium">{report.title}</h3>
+              <p className="mb-4 text-xs text-muted-foreground">{report.description}</p>
+              <Button variant="outline" size="sm" className="w-full">
+                <Download className="mr-1.5 h-4 w-4" />
+                Export
+              </Button>
             </CardContent>
           </Card>
         ))}
