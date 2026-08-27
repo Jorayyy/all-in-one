@@ -1,6 +1,6 @@
 import { requireAuth } from "@/lib/auth";
 import { Card, CardContent, Button } from "@/components/ui";
-import { Bell, Check, Trash } from "phosphor-react";
+import { Bell, Check, Trash } from "@/components/icons";
 
 export default async function NotificationsPage() {
   await requireAuth();

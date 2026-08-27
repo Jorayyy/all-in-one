@@ -1,7 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, Button } from "@/components/ui";
-import { Plus, MagnifyingGlass, Users, Phone, Envelope } from "phosphor-react";
+import { Plus, MagnifyingGlass, Users, Phone, Envelope } from "@/components/icons";
 
 export default async function CustomersPage() {
   await requireAuth();

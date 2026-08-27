@@ -1,7 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
-import { Plus, CaretLeft, CaretRight } from "phosphor-react";
+import { Plus, CaretLeft, CaretRight } from "@/components/icons";
 
 export default async function SchedulesPage() {
   await requireAuth();

@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { Card, CardContent, Button, Badge, Input } from "@/components/ui";
 import { formatDate, fullName, getInitials } from "@/lib/format";
 import Link from "next/link";
-import { Plus, MagnifyingGlass, Funnel, Download } from "phosphor-react";
+import { Plus, MagnifyingGlass, Funnel, Download } from "@/components/icons";
 
 export default async function EmployeesPage() {
   await requireAuth();

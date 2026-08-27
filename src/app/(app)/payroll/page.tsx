@@ -2,7 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { Plus, Download, Money } from "phosphor-react";
+import { Plus, Download, Money } from "@/components/icons";
 
 export default async function PayrollPage() {
   await requireAuth();

@@ -10,7 +10,7 @@ import {
   Package,
   Clock,
   ArrowRight,
-} from "phosphor-react";
+} from "@/components/icons";
 import Link from "next/link";
 
 export default async function DashboardPage() {

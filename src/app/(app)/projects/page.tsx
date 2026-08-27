@@ -2,7 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, Badge, Button, ProgressBar } from "@/components/ui";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { Plus, Folder } from "phosphor-react";
+import { Plus, Folder } from "@/components/icons";
 
 export default async function ProjectsPage() {
   await requireAuth();

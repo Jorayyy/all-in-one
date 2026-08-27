@@ -2,7 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { Plus, Money, Clock, TrendUp } from "phosphor-react";
+import { Plus, Money, Clock, TrendUp } from "@/components/icons";
 
 export default async function SalesPage() {
   await requireAuth();

@@ -1,6 +1,6 @@
 import { requireAuth } from "@/lib/auth";
 import { Card, CardContent, Button } from "@/components/ui";
-import { FileText, Download, Users, Clock, Money, Package, TrendUp, Folder } from "phosphor-react";
+import { FileText, Download, Users, Clock, Money, Package, TrendUp, Folder } from "@/components/icons";
 
 export default async function ReportsPage() {
   await requireAuth();

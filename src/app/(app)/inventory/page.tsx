@@ -2,7 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, Badge, Button } from "@/components/ui";
 import { formatCurrency } from "@/lib/format";
-import { Plus, MagnifyingGlass, Package, Warning } from "phosphor-react";
+import { Plus, MagnifyingGlass, Package, Warning } from "@/components/icons";
 
 export default async function InventoryPage() {
   await requireAuth();

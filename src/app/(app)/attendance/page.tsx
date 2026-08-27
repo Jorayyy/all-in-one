@@ -2,7 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
 import { formatDate } from "@/lib/format";
-import { Clock, Download, Funnel, CheckCircle, XCircle, Warning } from "phosphor-react";
+import { Clock, Download, Funnel, CheckCircle, XCircle, Warning } from "@/components/icons";
 
 export default async function AttendancePage() {
   await requireAuth();

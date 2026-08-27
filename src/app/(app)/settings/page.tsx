@@ -1,7 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle, Button, Input } from "@/components/ui";
-import { GearSix, Users, Bell, Shield, Database } from "phosphor-react";
+import { GearSix, Users, Bell, Shield, Database } from "@/components/icons";
 
 export default async function SettingsPage() {
   await requireAuth();

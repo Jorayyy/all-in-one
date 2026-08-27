@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from "@/components/ui";
 import { formatDate, fullName, getInitials, formatCurrency } from "@/lib/format";
 import Link from "next/link";
-import { ArrowLeft, Pencil, Trash, Envelope, Phone, MapPin } from "phosphor-react";
+import { ArrowLeft, Pencil, Trash, Envelope, Phone, MapPin } from "@/components/icons";
 
 export default async function EmployeeDetailPage({
   params,

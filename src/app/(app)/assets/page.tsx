@@ -2,7 +2,7 @@ import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, Badge, Button } from "@/components/ui";
 import { formatDate } from "@/lib/format";
-import { Plus, MagnifyingGlass, Wrench, CheckCircle, Warning } from "phosphor-react";
+import { Plus, MagnifyingGlass, Wrench, CheckCircle, Warning } from "@/components/icons";
 
 export default async function AssetsPage() {
   await requireAuth();

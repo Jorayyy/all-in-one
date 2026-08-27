@@ -1,7 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardContent, Badge, Button } from "@/components/ui";
-import { Plus, MapPin, Users, Package } from "phosphor-react";
+import { Plus, MapPin, Users, Package } from "@/components/icons";
 
 export default async function LocationsPage() {
   await requireAuth();
