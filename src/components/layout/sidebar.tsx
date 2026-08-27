@@ -26,7 +26,6 @@ import {
   CaretRight,
   Sun,
   Moon,
-  Monitor,
 } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
@@ -181,16 +180,6 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
             )}
           >
             <Moon className="h-3.5 w-3.5" />
-          </button>
-          <button
-            onClick={() => setTheme("system")}
-            title="System"
-            className={cn(
-              "cursor-pointer rounded-md p-1.5 transition-colors",
-              mounted && theme === "system" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <Monitor className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
