@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Avatar, DropdownMenu } from "@/components/ui";
 import { getInitials, fullName } from "@/lib/format";
-import { Bell, List } from "phosphor-react";
+import { Bell, List } from "@phosphor-icons/react";
 
 interface HeaderProps {
   user: {

@@ -27,7 +27,7 @@ import {
   Sun,
   Moon,
   Monitor,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 import { useState } from "react";
 import { useTheme } from "next-themes";
 

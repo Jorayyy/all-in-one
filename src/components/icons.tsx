@@ -43,4 +43,4 @@ export {
   Envelope,
   Shield,
   Database,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
