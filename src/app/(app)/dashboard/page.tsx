@@ -12,6 +12,7 @@ import {
   ArrowRight,
 } from "@/components/icons";
 import Link from "next/link";
+import ClockWidget from "@/components/attendance/clock-widget";
 
 export default async function DashboardPage() {
   const session = await requireAuth();
@@ -48,6 +49,8 @@ export default async function DashboardPage() {
           Here&apos;s what&apos;s happening with your business today.
         </p>
       </div>
+
+      <ClockWidget />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard

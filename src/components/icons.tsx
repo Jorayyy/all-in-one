@@ -43,4 +43,11 @@ export {
   Envelope,
   Shield,
   Database,
+  Eye,
+  Receipt,
+  Printer,
+  User,
+  Calendar,
+  Bank,
+  CreditCard,
 } from "@phosphor-icons/react";

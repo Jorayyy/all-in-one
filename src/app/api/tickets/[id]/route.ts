@@ -69,6 +69,50 @@ export async function PUT(
   }
 }
 
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await requireAuth();
+    const { id } = await params;
+    const body = await request.json();
+    const { status, remarks } = body;
+
+    const validStatuses = ["OPEN", "IN_PROGRESS", "WAITING", "RESOLVED", "CLOSED"];
+    if (!status || !validStatuses.includes(status)) {
+      return NextResponse.json(
+        { error: `Invalid status. Must be one of: ${validStatuses.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
+    const existing = await db.serviceTicket.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
+    }
+
+    const updateData: any = { status };
+    if (status === "RESOLVED") updateData.resolvedAt = new Date();
+    if (status === "CLOSED") updateData.closedAt = new Date();
+    if (remarks !== undefined) updateData.notes = remarks;
+
+    const ticket = await db.serviceTicket.update({
+      where: { id },
+      data: updateData,
+      include: {
+        customer: { select: { id: true, name: true } },
+        assignee: { select: { id: true, firstName: true, lastName: true, employeeNumber: true } },
+      },
+    });
+
+    return NextResponse.json({ ticket });
+  } catch (error) {
+    console.error("Update ticket status error:", error);
+    return NextResponse.json({ error: "Failed to update ticket status" }, { status: 500 });
+  }
+}
+
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }

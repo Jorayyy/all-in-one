@@ -2,6 +2,21 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 
+export async function GET() {
+  try {
+    await requireAuth();
+    const assets = await db.asset.findMany({
+      where: { deletedAt: null },
+      select: { id: true, name: true, code: true },
+      orderBy: { name: "asc" },
+    });
+    return NextResponse.json({ assets });
+  } catch (error) {
+    console.error("Fetch assets error:", error);
+    return NextResponse.json({ error: "Failed to fetch assets" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     await requireAuth();
