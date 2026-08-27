@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, Badge, Select } from "@/components/ui";
+import { Card, CardContent, CardHeader, CardTitle, Button, Input, Badge } from "@/components/ui";
 import { GearSix, Users, Bell, Shield, Database } from "@/components/icons";
 import toast from "react-hot-toast";
 

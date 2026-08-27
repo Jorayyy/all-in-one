@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireAuth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 
 export async function GET() {
   try {
-    await requireAuth();
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const users = await db.user.findMany({
       select: { id: true, email: true, role: true, isActive: true, createdAt: true, employee: { select: { firstName: true, lastName: true, employeeNumber: true } } },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json({ users });
   } catch (error: any) {
-    if (error?.message === "NEXT_REDIRECT") throw error;
     console.error("Fetch users error:", error);
     return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
   }
@@ -19,7 +19,8 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    await requireAuth();
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const body = await request.json();
     const { userId, role, isActive } = body;
     if (!userId || !role) return NextResponse.json({ error: "userId and role required" }, { status: 400 });

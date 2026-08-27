@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireAuth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 
 export async function GET() {
   try {
-    await requireAuth();
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const company = await db.company.findFirst();
     return NextResponse.json({ company });
   } catch (error: any) {
-    if (error?.message === "NEXT_REDIRECT") throw error;
     console.error("Fetch company error:", error);
     return NextResponse.json({ error: "Failed to fetch company" }, { status: 500 });
   }
@@ -16,7 +16,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    await requireAuth();
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const body = await request.json();
     const { name, address, phone, email, website, tinNumber } = body;
 
@@ -43,7 +44,8 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    await requireAuth();
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const body = await request.json();
     const { name, address, phone, email, website, tinNumber } = body;
     const existing = await db.company.findFirst();
